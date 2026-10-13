@@ -1,24 +1,28 @@
 :root {
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #eff6ff;
+  /* Brand Primary Palette (Dark Green #149346) */
+  --color-primary: #149346;
+  --color-primary-hover: #0f7536;
+  --color-primary-light: #e8f7ee;
+  
+  /* Sidebar */
   --color-sidebar: #0f172a;
   --color-sidebar-hover: #1e293b;
-  --color-sidebar-active: #2563eb;
+  --color-sidebar-active: #149346;
   --color-sidebar-text: #94a3b8;
   --color-sidebar-text-active: #ffffff;
   
-  --color-bg-main: #f8fafc;
+  /* Backgrounds & Neutrals (Light Gray #eeeff0) */
+  --color-bg-main: #eeeff0;
   --color-card-bg: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
+  --color-border: #dcdfe3;
+  --color-border-light: #e8eaed;
   
   --color-text-main: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-subtle: #94a3b8;
+  --color-text-muted: #596780;
+  --color-text-subtle: #8a96a8;
   
-  --color-success: #10b981;
-  --color-success-bg: #ecfdf5;
+  --color-success: #149346;
+  --color-success-bg: #e8f7ee;
   --color-warning: #f59e0b;
   --color-warning-bg: #fffbeb;
   --color-danger: #ef4444;
