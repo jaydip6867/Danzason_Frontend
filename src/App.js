@@ -13,6 +13,7 @@ import LeadsPage from './pages/leads/LeadsPage';
 import CustomersPage from './pages/customers/CustomersPage';
 import OrdersPage from './pages/orders/OrdersPage';
 import QuotationsPage from './pages/quotations/QuotationsPage';
+import InvoicesPage from './pages/invoices/InvoicesPage';
 
 // Placeholder or active module shells
 import SettingsPage from './pages/SettingsPage';
@@ -50,14 +51,7 @@ function App() {
               </Route>
 
               <Route element={<ProtectedRoute moduleName="invoices" />}>
-                <Route
-                  path="/invoices"
-                  element={
-                    <div className="card">
-                      <h2>Invoices Module Shell</h2>
-                    </div>
-                  }
-                />
+                <Route path="/invoices" element={<InvoicesPage />} />
               </Route>
 
               <Route path="/settings" element={<SettingsPage />} />
