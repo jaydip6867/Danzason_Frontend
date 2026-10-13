@@ -1,11 +1,23 @@
 import axios from 'axios';
 
+// Detect whether we are running in localhost or production
+const getBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  // If window is defined and running on non-localhost, point to production Render backend
+  if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
+    return 'https://danzason-backend.onrender.com/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: getBaseUrl(),
   withCredentials: true, // Send HttpOnly cookies automatically
 });
 
-// Intercept requests to add Bearer token if stored in localStorage as fallback
+// Intercept requests to add Bearer token from localStorage as reliable cross-domain fallback
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('dzs_token');
@@ -22,8 +34,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // If unauthorized and not already on auth pages
       if (
+        typeof window !== 'undefined' &&
         !window.location.pathname.includes('/login') &&
         !window.location.pathname.includes('/register')
       ) {
