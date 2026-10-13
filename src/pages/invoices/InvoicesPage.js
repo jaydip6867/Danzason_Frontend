@@ -560,8 +560,31 @@ const InvoicesPage = () => {
             </div>
 
             <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '12px' }}>
+              {/* Field Column Headers */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '3fr 1fr 1.2fr 1fr 1fr 28px',
+                  gap: '8px',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                  paddingBottom: '6px',
+                  borderBottom: '1px solid var(--color-border)',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--color-text-muted)',
+                }}
+              >
+                <div>Item Description *</div>
+                <div>Qty *</div>
+                <div>Price (₹) *</div>
+                <div>Discount (₹)</div>
+                <div>GST (%)</div>
+                <div></div>
+              </div>
+
               {formData.items.map((item, index) => (
-                <div key={index} style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1.2fr 1fr 1fr auto', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+                <div key={index} style={{ display: 'grid', gridTemplateColumns: '3fr 1fr 1.2fr 1fr 1fr 28px', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
                   <input
                     type="text"
                     className="form-control"
