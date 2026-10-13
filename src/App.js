@@ -9,6 +9,11 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 
+import LeadsPage from './pages/leads/LeadsPage';
+import CustomersPage from './pages/customers/CustomersPage';
+import OrdersPage from './pages/orders/OrdersPage';
+import QuotationsPage from './pages/quotations/QuotationsPage';
+
 // Placeholder or active module shells
 import SettingsPage from './pages/SettingsPage';
 
@@ -29,47 +34,19 @@ function App() {
 
               {/* Module routes with permission guards */}
               <Route element={<ProtectedRoute moduleName="leads" />}>
-                <Route
-                  path="/leads"
-                  element={
-                    <div className="card">
-                      <h2>Leads Module Shell</h2>
-                    </div>
-                  }
-                />
+                <Route path="/leads" element={<LeadsPage />} />
               </Route>
 
               <Route element={<ProtectedRoute moduleName="customers" />}>
-                <Route
-                  path="/customers"
-                  element={
-                    <div className="card">
-                      <h2>Customers Module Shell</h2>
-                    </div>
-                  }
-                />
+                <Route path="/customers" element={<CustomersPage />} />
               </Route>
 
               <Route element={<ProtectedRoute moduleName="orders" />}>
-                <Route
-                  path="/orders"
-                  element={
-                    <div className="card">
-                      <h2>Orders Module Shell</h2>
-                    </div>
-                  }
-                />
+                <Route path="/orders" element={<OrdersPage />} />
               </Route>
 
               <Route element={<ProtectedRoute moduleName="quotations" />}>
-                <Route
-                  path="/quotations"
-                  element={
-                    <div className="card">
-                      <h2>Quotations Module Shell</h2>
-                    </div>
-                  }
-                />
+                <Route path="/quotations" element={<QuotationsPage />} />
               </Route>
 
               <Route element={<ProtectedRoute moduleName="invoices" />}>
