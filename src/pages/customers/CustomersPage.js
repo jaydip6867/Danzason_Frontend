@@ -18,6 +18,8 @@ import { useAuth } from '../../context/AuthContext';
 const CustomersPage = () => {
   const { hasPermission } = useAuth();
   const [customers, setCustomers] = useState([]);
+  const [leads, setLeads] = useState([]);
+  const [selectedLeadId, setSelectedLeadId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -59,9 +61,16 @@ const CustomersPage = () => {
       if (search) params.search = search;
       if (typeFilter !== 'All') params.customerType = typeFilter;
 
-      const res = await api.get('/customers', { params });
+      const [res, leadsRes] = await Promise.all([
+        api.get('/customers', { params }),
+        api.get('/leads?limit=100'),
+      ]);
+
       if (res.data?.success) {
         setCustomers(res.data.data);
+      }
+      if (leadsRes.data?.success) {
+        setLeads(leadsRes.data.data || []);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch customers');
@@ -76,8 +85,27 @@ const CustomersPage = () => {
 
   const handleOpenAdd = () => {
     setFormData(initialFormState);
+    setSelectedLeadId('');
     setIsEditMode(false);
     setIsFormOpen(true);
+  };
+
+  const handleSelectLead = (leadId) => {
+    setSelectedLeadId(leadId);
+    if (!leadId) return;
+
+    const lead = leads.find((l) => l._id === leadId);
+    if (lead) {
+      setFormData((prev) => ({
+        ...prev,
+        name: lead.name || prev.name,
+        companyName: lead.companyName || prev.companyName,
+        phone: lead.phone || prev.phone,
+        alternatePhone: lead.alternatePhone || prev.alternatePhone,
+        email: lead.email || prev.email,
+        notes: lead.notes ? `Converted from Lead (${lead.leadId}): ${lead.notes}` : prev.notes,
+      }));
+    }
   };
 
   const handleOpenEdit = (customer) => {
@@ -387,6 +415,39 @@ const CustomersPage = () => {
         maxWidth="700px"
       >
         <form onSubmit={handleSubmitForm}>
+          {/* Select Lead Option (Shown only when creating a new customer) */}
+          {!isEditMode && leads.length > 0 && (
+            <div
+              style={{
+                marginBottom: '16px',
+                padding: '12px 14px',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <label className="form-label" style={{ color: 'var(--color-primary)', fontWeight: 700, marginBottom: '6px' }}>
+                🔗 Select from Existing Leads (Optional)
+              </label>
+              <select
+                className="form-control"
+                value={selectedLeadId}
+                onChange={(e) => handleSelectLead(e.target.value)}
+                style={{ backgroundColor: '#ffffff' }}
+              >
+                <option value="">-- Choose Lead to Auto-fill details or enter manually --</option>
+                {leads.map((l) => (
+                  <option key={l._id} value={l._id}>
+                    {l.name} {l.companyName ? `(${l.companyName})` : ''} - {l.leadId} [{l.status}]
+                  </option>
+                ))}
+              </select>
+              <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px', display: 'block' }}>
+                Selecting a lead will automatically populate customer name, company, phone, email, and notes.
+              </span>
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div className="form-group">
               <label className="form-label">Customer Name *</label>
