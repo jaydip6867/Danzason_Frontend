@@ -34,9 +34,9 @@ export function numberToWords(amount) {
   const num = Math.round(Number(amount) * 100) / 100;
   if (num === 0) return 'Rupees Zero Only';
 
-  const parts = num.toString().split('.');
+  const parts = num.toFixed(2).split('.');
   let integerPart = parseInt(parts[0], 10);
-  const decimalPart = parts[1] ? parseInt(parts[1].padEnd(2, '0').slice(0, 2), 10) : 0;
+  const decimalPart = parts[1] ? parseInt(parts[1], 10) : 0;
 
   let words = '';
 

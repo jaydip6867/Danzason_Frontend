@@ -189,8 +189,9 @@ const InvoicesPage = () => {
 
   const handleOpenRecordPayment = (invoice) => {
     setCurrentInvoice(invoice);
+    const balance = Math.round(Number(invoice.balanceDue || 0) * 100) / 100;
     setPaymentData({
-      amount: invoice.balanceDue || '',
+      amount: balance > 0 ? balance : '',
       paymentMethod: 'Bank Transfer',
       referenceNumber: '',
       notes: '',
@@ -265,12 +266,21 @@ const InvoicesPage = () => {
 
   const handleRecordPaymentSubmit = async (e) => {
     e.preventDefault();
+    const numericAmount = Math.round(Number(paymentData.amount) * 100) / 100;
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      setError('Please enter a valid payment amount greater than 0');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
 
     try {
-      await api.post(`/invoices/${currentInvoice._id}/payments`, paymentData);
-      setSuccess(`Payment of ₹${paymentData.amount} recorded!`);
+      await api.post(`/invoices/${currentInvoice._id}/payments`, {
+        ...paymentData,
+        amount: numericAmount,
+      });
+      setSuccess(`Payment of ₹${numericAmount.toFixed(2)} recorded successfully!`);
       setIsPaymentOpen(false);
       fetchInvoices();
       setTimeout(() => setSuccess(''), 4000);
@@ -460,14 +470,14 @@ const InvoicesPage = () => {
                         {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : '-'}
                       </td>
                       <td style={{ padding: '14px 16px', fontWeight: 700 }}>
-                        ₹{Number(inv.grandTotal).toLocaleString('en-IN')}
+                        ₹{Number(inv.grandTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ color: '#059669', fontWeight: 600 }}>
-                          ₹{Number(inv.amountPaid || 0).toLocaleString('en-IN')}
+                          ₹{Number(inv.amountPaid || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div style={{ color: inv.balanceDue > 0 ? '#dc2626' : 'var(--color-text-muted)', fontSize: '11px' }}>
-                          Due: ₹{Number(inv.balanceDue || 0).toLocaleString('en-IN')}
+                          Due: ₹{Number(inv.balanceDue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
@@ -782,28 +792,55 @@ const InvoicesPage = () => {
         maxWidth="500px"
       >
         <form onSubmit={handleRecordPaymentSubmit}>
-          <div style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: 'var(--radius-md)', marginBottom: '16px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span>Total Bill:</span>
-              <strong>₹{currentInvoice?.grandTotal?.toLocaleString('en-IN')}</strong>
+          <div style={{ padding: '14px 16px', backgroundColor: '#f8fafc', borderRadius: 'var(--radius-md)', marginBottom: '16px', fontSize: '13px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{ color: '#64748b' }}>Total Invoice Bill:</span>
+              <strong style={{ color: '#0f172a' }}>₹{Number(currentInvoice?.grandTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#dc2626' }}>
-              <span>Current Balance Due:</span>
-              <strong>₹{currentInvoice?.balanceDue?.toLocaleString('en-IN')}</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{ color: '#64748b' }}>Amount Paid So Far:</span>
+              <strong style={{ color: '#059669' }}>₹{Number(currentInvoice?.amountPaid || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#dc2626', paddingTop: '6px', borderTop: '1px dashed #cbd5e1' }}>
+              <span style={{ fontWeight: 600 }}>Current Balance Due:</span>
+              <strong style={{ fontSize: '14px' }}>₹{Number(currentInvoice?.balanceDue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Payment Amount (₹) *</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label className="form-label" style={{ marginBottom: 0 }}>Payment Amount (₹) *</label>
+              <button
+                type="button"
+                onClick={() => setPaymentData({ ...paymentData, amount: Math.round(Number(currentInvoice?.balanceDue || 0) * 100) / 100 })}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#149346',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                  textDecoration: 'underline',
+                }}
+              >
+                Pay Full Balance (₹{Number(currentInvoice?.balanceDue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+              </button>
+            </div>
             <input
               type="number"
-              min="1"
-              max={currentInvoice?.balanceDue}
+              step="any"
+              min="0.01"
+              max={Math.round(Number(currentInvoice?.balanceDue || 0) * 100) / 100 + 0.01}
               required
               className="form-control"
+              placeholder="e.g. 1500.50"
               value={paymentData.amount}
               onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
             />
+            <small style={{ color: 'var(--color-text-muted)', fontSize: '11px', marginTop: '4px', display: 'block' }}>
+              Point / Decimal values (e.g. ₹1250.50, ₹99.75) are fully supported.
+            </small>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -1460,7 +1497,9 @@ const InvoicesPage = () => {
                         {new Date(p.paymentDate).toLocaleDateString()} via {p.paymentMethod}{' '}
                         {p.referenceNumber ? `(${p.referenceNumber})` : ''}
                       </span>
-                      <strong style={{ color: '#059669' }}>₹{Number(p.amount).toLocaleString('en-IN')}</strong>
+                      <strong style={{ color: '#059669' }}>
+                        ₹{Number(p.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </strong>
                     </div>
                   ))}
                 </div>
