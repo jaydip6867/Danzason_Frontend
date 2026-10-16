@@ -381,15 +381,43 @@ body {
   color: var(--color-text-subtle);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
+/* Print Styles for Invoice & Reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
   }
-  .sidebar.mobile-open {
-    transform: translateX(0);
+
+  /* Hide everything on page by default */
+  .sidebar,
+  .navbar,
+  .main-wrapper > *:not(.modal-open),
+  .modal-overlay,
+  button,
+  .no-print {
+    display: none !important;
   }
-  .main-wrapper {
-    margin-left: 0;
+
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-document,
+  #invoice-document * {
+    visibility: visible;
+  }
+
+  #invoice-document {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 12mm 15mm !important;
+    background: #ffffff !important;
   }
 }
+
