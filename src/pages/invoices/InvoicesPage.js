@@ -14,6 +14,8 @@ import {
   X,
   CreditCard,
   Printer,
+  Send,
+  Mail,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -92,6 +94,52 @@ const InvoicesPage = () => {
     setFormData(initialFormState);
     setIsEditMode(false);
     setIsFormOpen(true);
+  };
+
+  const handleOrderSelect = (orderId) => {
+    if (!orderId) {
+      setFormData((prev) => ({
+        ...prev,
+        relatedOrder: '',
+      }));
+      return;
+    }
+
+    const order = orders.find((o) => o._id === orderId);
+    if (order) {
+      // Auto fill Customer, Line Items, and notes from selected Order
+      const customerId = order.customer?._id || order.customer || '';
+      const orderItems = (order.items || []).map((it) => ({
+        description: it.description || '',
+        quantity: it.quantity || 1,
+        unitPrice: it.unitPrice || 0,
+        discount: it.discount || 0,
+        taxRate: it.taxRate || 18,
+      }));
+
+      setFormData((prev) => ({
+        ...prev,
+        relatedOrder: orderId,
+        customer: customerId || prev.customer,
+        items: orderItems.length > 0 ? orderItems : [{ ...initialItem }],
+        notes: order.notes ? `Invoice for Order #${order.orderId}. ${order.notes}` : `Invoice for Order #${order.orderId}`,
+      }));
+    }
+  };
+
+  const handleSendInvoice = (inv) => {
+    if (!inv) return;
+    const customerEmail = inv.customer?.email || '';
+    const subject = encodeURIComponent(`Invoice ${inv.invoiceNumber} from Danza SON ERP`);
+    const body = encodeURIComponent(
+      `Dear ${inv.customer?.name || 'Customer'},\n\nPlease find attached the Tax Invoice ${inv.invoiceNumber} for the total amount of ₹${inv.grandTotal?.toLocaleString('en-IN')}.\n\nBalance Due: ₹${inv.balanceDue?.toLocaleString('en-IN')}\nDue Date: ${inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : 'N/A'}\n\nThank you for your business.\n\nBest Regards,\nDanza SON ERP Team`
+    );
+
+    if (customerEmail) {
+      window.location.href = `mailto:${customerEmail}?subject=${subject}&body=${body}`;
+    } else {
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
   };
 
   const handleOpenEdit = (invoice) => {
@@ -433,6 +481,19 @@ const InvoicesPage = () => {
                             </button>
                           )}
                           <button
+                            onClick={() => handleSendInvoice(inv)}
+                            title="Send Invoice to Customer Email"
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#149346',
+                              cursor: 'pointer',
+                              padding: '4px',
+                            }}
+                          >
+                            <Mail size={16} />
+                          </button>
+                          <button
                             onClick={() => handleOpenView(inv)}
                             title="View / Print Invoice"
                             style={{
@@ -512,16 +573,18 @@ const InvoicesPage = () => {
               </select>
             </div>
             <div className="form-group">
-              <label className="form-label">Link Related Order (Optional)</label>
+              <label className="form-label">
+                Link Related Order (Auto-fills Customer & Items)
+              </label>
               <select
                 className="form-control"
                 value={formData.relatedOrder}
-                onChange={(e) => setFormData({ ...formData, relatedOrder: e.target.value })}
+                onChange={(e) => handleOrderSelect(e.target.value)}
               >
                 <option value="">-- None / Direct Invoice --</option>
                 {orders.map((o) => (
                   <option key={o._id} value={o._id}>
-                    {o.orderId} - ₹{o.grandTotal}
+                    {o.orderId} - {o.customer?.name ? `${o.customer.name} - ` : ''}₹{o.grandTotal?.toLocaleString('en-IN')} [{o.status}]
                   </option>
                 ))}
               </select>
@@ -871,10 +934,19 @@ const InvoicesPage = () => {
               </div>
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
-              <button className="btn btn-outline btn-sm" onClick={() => window.print()}>
-                <Printer size={16} /> Print / Save PDF
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-outline btn-sm" onClick={() => window.print()}>
+                  <Printer size={16} /> Print / Save PDF
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => handleSendInvoice(currentInvoice)}
+                  title="Send Invoice to Customer Email"
+                >
+                  <Send size={16} /> Send to Customer
+                </button>
+              </div>
               <button className="btn btn-outline btn-sm" onClick={() => setIsViewOpen(false)}>
                 Close
               </button>
