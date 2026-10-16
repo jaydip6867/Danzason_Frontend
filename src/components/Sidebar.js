@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   FileText,
   Receipt,
+  Package,
   Settings,
   LogOut,
   X,
@@ -46,6 +47,12 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
       label: 'Orders',
       icon: ShoppingCart,
       module: 'orders',
+    },
+    {
+      to: '/purchases',
+      label: 'Purchases',
+      icon: Package,
+      module: 'purchases',
     },
     {
       to: '/quotations',

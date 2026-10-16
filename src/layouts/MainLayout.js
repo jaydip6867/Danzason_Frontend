@@ -20,6 +20,9 @@ const MainLayout = () => {
     if (pathname.startsWith('/orders')) {
       return { title: 'Orders Management', breadcrumb: 'Danza SON ERP / Orders' };
     }
+    if (pathname.startsWith('/purchases')) {
+      return { title: 'Purchase Management', breadcrumb: 'Danza SON ERP / Purchases' };
+    }
     if (pathname.startsWith('/quotations')) {
       return { title: 'Quotations Management', breadcrumb: 'Danza SON ERP / Quotations' };
     }

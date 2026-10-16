@@ -12,6 +12,7 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import LeadsPage from './pages/leads/LeadsPage';
 import CustomersPage from './pages/customers/CustomersPage';
 import OrdersPage from './pages/orders/OrdersPage';
+import PurchasesPage from './pages/purchases/PurchasesPage';
 import QuotationsPage from './pages/quotations/QuotationsPage';
 import InvoicesPage from './pages/invoices/InvoicesPage';
 
@@ -44,6 +45,10 @@ function App() {
 
               <Route element={<ProtectedRoute moduleName="orders" />}>
                 <Route path="/orders" element={<OrdersPage />} />
+              </Route>
+
+              <Route element={<ProtectedRoute moduleName="purchases" />}>
+                <Route path="/purchases" element={<PurchasesPage />} />
               </Route>
 
               <Route element={<ProtectedRoute moduleName="quotations" />}>
